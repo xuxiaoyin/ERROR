@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+	</head>
+	<body>
+		<a target="_blank"></a>
+	</body>
+	
+	<script>
+		var str='border-bottom-color';
+		var num=0;
+		var value='';
+		function test(str) {
+			var arr=str.split('-');
+			for (var i=1;i<arr.length;i++) {
+				arr[i]=arr[i].charAt(0).toUpperCase()+arr[i].substring(1);
+			}
+			return arr.join('')
+		};
+		alert(test(str));
+		
+		//查找出现最多的字符
+		var str1='adjhkfhkhhhkhouh';
+		function getMore(str) {
+			var obj={};
+			for(var i=0; i<str.length;i++) {
+				if(!obj[str[i]]) {
+					obj[str[i]]=[];
+				};
+				obj[str[i]].push(str[i]);
+			};
+			
+			for(var attr in obj) {
+				if(obj[attr].length>num){
+					num=obj[attr].length;
+					value=obj[attr][0];
+				}
+			};
+			
+			return '出现最多的字符是'+value+'，出现了'+num+'次'
+		}
+		
+		alert(getMore(str1));
+		
+		//添加千分符号
+		var str2='1689474974757';
+		function tochange(str) {
+			var arr=[];
+			var temp='';
+			iNow=0;
+			var num=str.length%3;
+			var prev='';
+			if(num!=0) {
+				prev=str.substring(0,num);
+				str=str.substring(num);
+				arr.push(prev);
+			}
+			for(var i=0;i<str.length;i++) {
+				iNow++;
+				temp+=str[i];
+				if(iNow==3 && temp){
+					arr.push(temp);
+					temp='';
+					iNow=0;
+				}
+			}
+			return arr.join(',');
+		}
+		alert(tochange(str2));
+		
+		//返回一个只包含数字类型的一个数组
+		var str3='45474gfkfkh9098bvbvkx80';
+		
+		function findNum(str) {
+			var new_str="";
+			var arr=[];
+			var arr2=[];
+			for(var i=0;i<str.length;i++){
+			  var code=str.charAt(i).charCodeAt();
+			  if(code>=48&&code<=57){
+			  	new_str+=str.charAt(i);
+			  }
+			  else{
+			  	new_str+=",";
+			  }
+			}
+			arr=new_str.split(","); //不写分隔符就是整个字符串装进数组
+			for(var i=0;i<arr.length;i++){
+			  if(arr[i]){
+			  arr2.push(arr[i]);
+			  }
+			}
+			return  arr2;
+		}
+		
+		alert(findNum(str3));
+	</script>
+</html>
