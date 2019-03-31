@@ -1,0 +1,33 @@
+1087 verbose stack Error: getaddrinfo ENOTFOUND xn--rvg xn--rvg:80
+1087 verbose stack     at errnoException (dns.js:27:10)
+1087 verbose stack     at GetAddrInfoReqWrap.onlookup [as oncomplete] (dns.js:78:26)
+1088 verbose cwd E:\wzdsvn\web\redux\react-redux
+1089 error Windows_NT 6.1.7601
+1090 error argv "C:\\Program Files\\nodejs\\node.exe" "C:\\Program Files\\nodejs\\node_modules\\npm\\bin\\npm-cli.js" "install"
+1091 error node v4.4.3
+1092 error npm  v2.15.1
+1093 error code ENOTFOUND
+1094 error errno ENOTFOUND
+1095 error syscall getaddrinfo
+1096 error network getaddrinfo ENOTFOUND xn--rvg xn--rvg:80
+1096 error network This is most likely not a problem with npm itself
+1096 error network and is related to network connectivity.
+1096 error network In most cases you are behind a proxy or have bad network settings.
+1096 error network
+1096 error network If you are behind a proxy, please make sure that the
+1096 error network 'proxy' config is set properly.  See: 'npm help config'
+1097 verbose exit [ 1, true ]
+
+解决办法：
+
+1、执行：
+
+npm config get proxy
+npm config get https-proxy
+如果返回值不为null，继续执行：
+npm config set proxy null
+npm config set https-proxy null
+2、执行：
+npm config set registry http://registry.cnpmjs.org/
+3、直接编辑c盘下的.npmrc文件，将registry的值修改为：
+registry = http://registry.cnpmjs.org
