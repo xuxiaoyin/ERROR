@@ -1,4 +1,4 @@
-1087 verbose stack Error: getaddrinfo ENOTFOUND xn--rvg xn--rvg:80
+﻿1087 verbose stack Error: getaddrinfo ENOTFOUND xn--rvg xn--rvg:80
 1087 verbose stack     at errnoException (dns.js:27:10)
 1087 verbose stack     at GetAddrInfoReqWrap.onlookup [as oncomplete] (dns.js:78:26)
 1088 verbose cwd E:\wzdsvn\web\redux\react-redux
@@ -31,3 +31,19 @@ npm config set https-proxy null
 npm config set registry http://registry.cnpmjs.org/
 3、直接编辑c盘下的.npmrc文件，将registry的值修改为：
 registry = http://registry.cnpmjs.org
+
+
+
+
+
+运行npm run build报错
+You may need an appropriate loader to handle this file type.
+修改webpack.config.js
+module rules 里添加
+{
+        test: /\.css$/,
+        use: [
+          'style-loader',
+          'css-loader'
+        ]
+      },
