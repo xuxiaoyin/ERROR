@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+	</head>
+	<body>
+		<script>
+			//反转字符串
+			var str="Let's go!";
+			
+			function test(str) {
+				//字符串按空格分割
+				let arr= str.split(' ');
+				let result=arr.map(item=>{
+					return item.split('').reverse().join('');
+				})
+				return result;
+			}
+			console.log(test(str));
+			
+		</script>
+	</body>
+</html>
