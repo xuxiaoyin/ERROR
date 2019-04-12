@@ -1,0 +1,74 @@
+<html>
+	<head>
+		<title></title>
+	</head>
+	<style>
+		#box1{
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100px;
+			height: 100px;
+			background: red;
+		}
+	</style>
+	<body>
+		<div id="box1"></div>
+	</body>
+	
+	<script>
+		class Drag{
+			//构造函数
+			constructor(el) {
+				this.el=el;
+				this.startOffset={};
+				this.startPoint={};
+				let move= (ev) => {
+					this.move(ev)
+				}
+				let end = (e) => {
+					document.removeEventListener('mousemove',move)
+					document.removeEventListener('mouseup',end)
+				}
+				el.addEventListener('mousedown',(ev)=>{
+					this.start(ev)
+					document.addEventListener('mousemove',move)
+					document.addEventListener('mouseup',end)
+				});
+			}
+			//按下时的处理函数
+			start(ev){
+				let {el}=this;
+				this.startOffset = {
+					x: el.offsetLeft,
+					y: el.offsetTop
+				};
+				this.startPoint = {
+					x: ev.clientX,
+					y: ev.clientY
+				}
+				
+			}
+			
+			//移动时的处理函数
+			move(ev){
+				let{el,startOffset,startPoint} = this;
+				let nowPoint={
+					x: ev.clientX,
+					y: ev.clientY
+				};
+				let dis={
+					x: nowPoint.x - startPoint.x,
+					y: nowPoint.y - startPoint.y
+				}
+				el.style.left = dis.x + startOffset.x + 'px';
+				el.style.top= dis.y + startOffset.y + 'px';
+			}
+		}
+		
+		(function(){
+			let box=document.querySelector('#box1');
+			let dragBox=new Drag(box);
+		})()
+	</script>
+</html>

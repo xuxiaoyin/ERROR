@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+	</head>
+	<body>
+		<script>
+			//for循环
+			var arr=[1,2,2,25];
+			function unit1(arr) {
+				var arr1=[];
+				for (var i=0; i<arr.length;i++) {
+					if(arr1.indexOf(arr[i])==-1){
+						arr1.push(arr[1])
+					}
+				}
+				return arr1;
+			}
+			console.log(unit1(arr));
+		</script>
+	</body>
+</html>

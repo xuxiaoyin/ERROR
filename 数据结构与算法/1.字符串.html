@@ -12,10 +12,10 @@
 			function test(str) {
 				//字符串按空格分割
 				let arr= str.split(' ');
-				let result=arr.map(item=>{
+				let result=arr.map( item => {
 					return item.split('').reverse().join('');
 				})
-				return result;
+				return result.join(' ');
 			}
 			console.log(test(str));
 			
