@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style>
+			#box1{
+				width: 100px;
+				height: 100px;
+				background: red;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="box1"></div>
+	</body>
+	<script type="text/javascript" src="event.js" ></script>
+	<script>
+		let e = new Event;
+		e.on('click',function(){
+			console.log(1);
+		});
+		e.on('click',function(){
+			console.log(2);
+		});
+		function fn2(){
+			console.log(3);
+		}
+		e.on("click", fn2);
+		e.on("click", fn2);
+		e.off("click",fn2);
+		console.log(e);
+	</script>
+</html>

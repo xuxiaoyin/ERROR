@@ -69,6 +69,12 @@
 		(function(){
 			let box=document.querySelector('#box1');
 			let dragBox=new Drag(box);
+			dragBox.on("dragstart",function(){
+				this.style.background = "yellow";
+			});
+			dragBox.on("dragend",function(){
+				this.style.background = "red";
+			});
 		})()
 	</script>
 </html>
