@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+	</head>
+	<body>
+	</body>
+	<script>
+		var arr=[{
+			name: '张三',
+			sex: '男',
+			job: [{
+				work: '工程师',
+				money: '10000',
+				year: '10'
+				},
+				{
+				work: '教师',
+				money: '10000',
+				year: '5'
+				},
+				{
+				work: '医生',
+				money: '10000',
+				year: '2'
+				},
+				{
+				work: 'IT',
+				money: '10000',
+				year: '1'
+				},
+			]
+		},
+		{
+			name: '李四',
+			sex: '男',
+			job: [{
+				work: '工程师1',
+				money: '10000',
+				year: '10'
+				},
+				{
+				work: '教师1',
+				money: '10000',
+				year: '5'
+				},
+				{
+				work: '医生1',
+				money: '10000',
+				year: '2'
+				},
+				{
+				work: 'IT1',
+				money: '10000',
+				year: '1'
+				},
+			]
+		},
+		{
+			name: '王五',
+			sex: '女',
+			job: [{
+				work: '工程师2',
+				money: '10000',
+				year: '10'
+				},
+				{
+				work: '教师3',
+				money: '10000',
+				year: '5'
+				},
+				{
+				work: '医生4',
+				money: '10000',
+				year: '2'
+				},
+				{
+				work: 'IT5',
+				money: '10000',
+				year: '1'
+				},
+			]
+		}]
+		
+		var obj={};
+		var job=[];
+		var job1=[];
+		
+		arr.forEach(item => {
+			job1=[]
+			item.job.forEach(job => {
+				job1.push(job.work)
+			})
+			job.push({
+				name: item.name,
+				work: job1
+			})
+		})
+		console.log(job)
+
+	</script>
+</html>

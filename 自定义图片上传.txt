@@ -1,0 +1,497 @@
+上传图片组件
+
+调用
+ <imgUpload 
+            @imgSuccess="imgSuccess02"  
+            style="margin-right:6px;"
+            :imageUrl = imageInfos[1].imageUrl
+            :coverImage=imageInfos[1].coverImage
+            title = "上传封面图"
+    />
+
+
+
+组件
+<template>
+  <div class="img-upload-template" ref="container" @mouseover="showBtn" @mouseout="hideBtn">
+    <input type="file" name="file"  @change="getFile" ref="fileFm" accept=".jpg, .png" style="display:none;"/>
+    <div class="up-btn" @click="startUpLoad">
+      <Icon type="ios-add-circle" />
+    </div>
+    <div class="text">
+      {{title}}
+    </div>
+    <div class="p">
+      800*800像素{{acceptType}}<br>
+      大小不超过500K
+    </div>
+    <img :src="imageUrl" class="img kk" v-if="imageUrl && !isImg">
+    <img src="" class="img" ref="targetImg" v-show="isImg && imgUrl">
+    <div class="progress" v-show="status == 'start'">
+      <div class="pro">
+        <Progress :percent="process" :stroke-width="16" hide-info/>
+        <div>上传中{{process}}%</div>
+      </div>
+    </div>
+    <!-- 删除操作 -->
+    <i class="iconfont icon-lianhe2" v-show="show" @click="remove"></i>
+    
+    <!-- 重新上传 设为封面 -->
+    <div class="operating" v-show="show">
+      <span class="item" @click="coverImageFn">设为封面</span>
+      <span class="item" @click="startUpLoad">重新上传</span>
+    </div>
+    <div class="coverImage" v-if="coverImage==1 && imageUrl" ref="fm">封面</div>
+  </div>
+</template>
+<script>
+import Axios from "axios";
+export default {
+  props: {
+    imageUrl: {
+      type: String,
+      default: ""
+    },
+    coverImage: {
+      type: Number,
+      default: 0
+    },
+    acceptType: {
+      type: String,
+      default: ".jpg, .png"
+    },
+    title: {
+      type: String,
+      default: "上传白底立体图"
+    }
+  },
+  data() {
+    return {
+      isImg: false,
+      uploadList: [],
+      process: 0,
+      status: "",
+      imgUrl: "",
+      show: false
+    };
+  },
+  mounted() {
+    //this.uploadList = this.$refs.upload.fileList;
+  },
+  created() {
+    //this.imgUrl = this.imageUrl;
+  },
+  methods: {
+    startUpLoad() {
+      this.isImg = false;
+      this.status = "";
+      //this.$refs.fileFm.dispatchEvent(new MouseEvent("click"));
+      this.$refs.fileFm.click();
+    },
+    getFile() {
+      let _this = this;
+      console.log(_this.$refs.fileFm.value);
+      let files = this.$refs.fileFm.files[0];
+      let maxW;
+      let maxH;
+      let fileType = files.name.substring(files.name.lastIndexOf("."));
+
+      // 判断格式
+      if (_this.acceptType.indexOf(fileType) == -1) {
+        _this.$Message.error("上传图片格式不正确！");
+        _this.$refs.fileFm.setAttribute("type", "text");
+        _this.$refs.fileFm.setAttribute("type", "file");
+        return;
+      }
+
+      let img = new Image();
+      img.src = window.URL.createObjectURL(files);
+      img.onload = function() {
+        maxW = img.width;
+        maxH = img.height;
+        // 判断图片是否是 500KB
+        if (files.size / 1024 > 500) {
+          _this.$Message.error("上传图片必须是小于 500KB");
+          img.src = "";
+          _this.$refs.fileFm.setAttribute("type", "text");
+          _this.$refs.fileFm.setAttribute("type", "file");
+          return;
+        }
+        // 判断图片是否是 800*800
+        if (maxW != 800 && maxH != 800) {
+          _this.$Message.error("请上传800*800的图片！");
+          img.src = "";
+          _this.$refs.fileFm.setAttribute("type", "text");
+          _this.$refs.fileFm.setAttribute("type", "file");
+          return;
+        }
+
+        _this.$refs.targetImg.src = window.URL.createObjectURL(files);
+        _this.isImg = true;
+        _this.status = "start";
+        //console.log(_this.isImg)
+        _this.getJdUrl(files);
+      };
+    },
+    getJdUrl(files) {
+      let _this = this;
+      let data = {};
+      let name = files.name;
+      this.ajax({
+        url: `/bmc/web/bookFile/buildJdUploadInfo?filePath=${encodeURI(name)}`,
+        success: res => {
+          if (res.code == 200) {
+            data.cloundUrl = res.result.cloundUrl;
+            data.action = res.result.action;
+            data.key = res.result.key;
+            _this.upLoadJd(files, data);
+          }
+        }
+      });
+    },
+    upLoadJd(files, data) {
+      let _this = this;
+      let formdata = new FormData();
+      formdata.append("key", data.key);
+      formdata.append("file", files);
+      let config = {
+        headers: { "Content-Type": "multipart/form-data" }
+      };
+      console.log(formdata);
+      Axios({
+        url: data.action,
+        method: "post",
+        data: formdata,
+        onUploadProgress: function(progressEvent) {
+          _this.process = progressEvent.loaded / progressEvent.total * 100;
+        }
+      })
+        .then(() => {
+          _this.imgUrl = data.cloundUrl;
+          _this.status = "finished";
+          _this.$Message.success("上传成功");
+          _this.uoload();
+        })
+        .catch(error => {
+          //alert('上传失败！')
+        });
+    },
+    showBtn() {
+      if (this.imgUrl || this.imageUrl) {
+        this.show = true;
+      }
+      //this.show = true;
+    },
+    hideBtn() {
+      this.show = false;
+    },
+    remove() {
+      this.coverImage = 0;
+      this.imgUrl = "";
+      this.status = "";
+      this.isImg = true;
+      this.uoload();
+    },
+    coverImageFn() {
+      this.coverImage = 1;
+      if (!this.imgUrl) {
+        this.imgUrl = this.imageUrl;
+      }
+      this.uoload();
+    },
+    uoload() {
+      let data = {
+        imgUrl: this.imgUrl,
+        coverImage: this.coverImage
+      };
+      this.$emit("imgSuccess", data);
+    }
+  },
+  watch: {
+    coverImage(newValue, oldValue) {
+      if (newValue == 0) {
+        this.$refs.fm.style.opacity='0'
+      }
+    }
+  }
+};
+</script>
+<style lang="less" scoped>
+.img-upload-template {
+  width: 180px;
+  height: 180px;
+  border: 1px solid #e4e4e4;
+  background: #f6f6f6;
+  display: inline-block;
+  position: relative;
+  text-align: center;
+  overflow: hidden;
+  .ivu-icon-ios-add-circle {
+    cursor: pointer;
+    font-size: 36px;
+    position: absolute;
+    left: 71px;
+    top: 60px;
+    color: #afb1b4;
+    &:hover {
+      color: #013b97;
+    }
+  }
+  .text {
+    padding-top: 96px;
+    color: #3e3e3e;
+  }
+  .p {
+    padding-top: 16px;
+    color: #afb1b4;
+  }
+  .img {
+    position: absolute;
+    width: 180px;
+    height: 180px;
+    background-position: center center;
+    background-size: cover;
+    left: 0;
+    top: 0;
+    z-index: 2;
+  }
+  .progress {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 5;
+    background: rgba(0, 0, 0, 0.4);
+    top: 0;
+    left: 0;
+    .pro {
+      width: 80%;
+      margin: 81px auto 0;
+      text-align: center;
+      color: #f6f6f6;
+    }
+  }
+  i.icon-lianhe2 {
+    cursor: pointer;
+    color: #626262;
+    font-size: 14px;
+    position: absolute;
+    right: 8px;
+    top: 5px;
+    z-index: 15;
+    &:hover {
+      color: #afb1b4;
+    }
+  }
+  .operating {
+    position: absolute;
+    width: 100%;
+    height: 32px;
+    line-height: 32px;
+    display: flex;
+    color: #d7d7d7;
+    background: rgba(0, 0, 0, 0.5);
+    bottom: 0;
+    left: 0;
+    z-index: 20;
+    &::after {
+      content: "";
+      display: block;
+      width: 1px;
+      height: 22px;
+      background: #ffffff;
+      position: absolute;
+      left: 90px;
+      top: 5px;
+    }
+    span.item {
+      flex: 1;
+      cursor: pointer;
+      &:hover {
+        color: #ffffff;
+      }
+    }
+  }
+  .coverImage {
+    position: absolute;
+    left: -1px;
+    top: -1px;
+    width: 40px;
+    height: 24px;
+    text-align: center;
+    line-height: 24px;
+    color: #fff;
+    background: #ff4e20;
+    z-index: 10;
+  }
+}
+</style>
+
+自定义添加标签 删除标签
+调用
+<BookTag ref="bookTag" @success="editSuccess"></BookTag>
+调用方法
+add
+this.$refs.bookTag.open("add");
+delete
+this.$refs.bookTag.open("delete");
+
+<template>
+  <Modal
+    ref="bookTag" 
+    v-model="model" 
+    draggable
+    width="400"
+    :footer-hide="true"
+    :header-heide="true"
+    :title="title"
+    :zIndex="9999"
+  > 
+    <div v-if="str != 'delete'">
+      <Form :model="formItem" :label-width="80" :rules="ruleValidate" ref="formItem" style="margin-top:18px;">
+        <FormItem label="标签名称" prop="tagName" style="width: 280px; margin-left: 35px;">
+          <Input type="text" v-model="formItem.tagName" placeholder="请输入标签名"></Input>
+        </FormItem>
+      </Form>
+    </div>
+    <div v-if="str=='delete'" class="book-delete">
+      <i class="ivu-icon ivu-icon-ios-help-circle"></i>
+      <span>确定删除图书标签吗？</span>
+    </div>
+    <div style="text-align: center; margin-top:10px; width: 100%;padding-top:10px;padding-bottom:15px;">
+      <div class="hc-bottom-btn tag submit" @click="submit('formItem')">保存</div>  
+      <div class="hc-bottom-btn tag" style="margin-left: 10px;" @click="model = false">返回</div>  
+    </div>     
+  </Modal>
+</template>
+<script>
+export default {
+  data() {
+    var spanceTestStartEnd = (rule, value, callback) => {
+      if (!value) {
+        callback(new Error("标签名不能为空"));
+      } else if (/^[\s　]|[ ]$/g.test(value)) {
+        callback(new Error("输入错误，请重新输入"));
+      } else {
+        callback();
+      }
+    };
+    return {
+      model: false,
+      id: "",
+      title: "",
+      str: "",
+      formItem: {},
+      ruleValidate: {
+        tagName: [
+          { validator: spanceTestStartEnd, required: false, trigger: "blur" }
+        ]
+      }
+    };
+  },
+  methods: {
+    open(str, id, name) {
+      switch (str) {
+        case "edit":
+          this.title = "修改标签";
+          break;
+        case "delete":
+          this.title = "删除标签";
+          break;
+        case "add":
+          this.title = "添加标签";
+          this.formItem.tagName = '';
+          break;
+        default:
+          break;
+      }
+      this.model = true;
+      this.id = id;
+      this.str = str;
+      console.log(str);
+      if (name) {
+        this.formItem.tagName = name;
+      }
+    },
+    submit(name) {
+      if (this.str == "delete") {
+        this.delete();
+        return;
+      }
+      if (this.str == "add") {
+        this.addBoobTag();
+        return;
+      }
+      this.$refs[name].validate(valid => {
+        if (valid) {
+          this.ajax({
+            url: "/bmc/web/booktag/updateBookTag",
+            data: {
+              id: this.id,
+              tagName: this.formItem.tagName
+            },
+            success: res => {
+              if (res.code == 200) {
+                this.model = false;
+                this.$Message.success("修改成功!");
+                this.$emit("success");
+              }
+            }
+          });
+        } else {
+          this.$Message.error("保存失败，标签名输入有误!");
+        }
+      });
+    },
+    delete() {
+      this.ajax({
+        url: "/bmc/web/booktag/deleteBookTag",
+        data: [Number(this.id)],
+        success: res => {
+          if (res.code == 200) {
+            this.model = false;
+            this.$Message.success("删除成功!");
+            this.$emit("success");
+          }
+        }
+      });
+    },
+    addBoobTag() {
+      console.log(this.formItem.tagName, "A");
+      this.ajax({
+        url: "/bmc/web/booktag/saveBookTag",
+        data: {
+          tagName: this.formItem.tagName
+        },
+        success: res => {
+          if (res.code == 200) {
+            this.model = false;
+            this.$Message.success("添加成功!");
+            this.$emit("success", res.result);
+          }
+        }
+      });
+    }
+  }
+};
+</script>
+
+<style lang="less" scoped>
+.book-delete {
+  text-align: center;
+  color: #4e4e4e;
+  padding: 20px 0;
+  span {
+    position: relative;
+    top: 2px;
+  }
+}
+.ivu-icon-ios-help-circle {
+  font-size: 30px;
+  color: #ffd500;
+}
+</style>
+
+
+
+
+
